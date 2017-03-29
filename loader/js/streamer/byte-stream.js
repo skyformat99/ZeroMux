@@ -205,6 +205,8 @@ function _makeEvents(self, daemon, userEvents)
         return daemon.getRangeStart();
     };
 
+    events.delay = userEvents["delay"];
+
     return events;
 }
 
@@ -267,7 +269,7 @@ function _waitAndLock(self, callback, n=0)
             callback();
         }
     };
-    
+
     setTimeout(loop, n);
 }
 

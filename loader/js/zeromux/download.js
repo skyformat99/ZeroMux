@@ -156,7 +156,20 @@ function handlePiece(infoArgs, index, array, events, retry, pieceBytes)
             suggestion = Math.max(events.suggest(), 0);
         }
         var nextIndex = getEmptySlot(array, suggestion);
-        secureAdd(infoArgs, nextIndex, array, events, DefaultMaxRetry);
+        // Delay
+        var nextCall = function()
+        {
+            secureAdd(infoArgs, nextIndex, array, events, DefaultMaxRetry);
+        };
+        if(events["delay"] != null && events["delay"] > 0)
+        {
+            setTimeout(nextCall, Math.min(1, events["delay"]));
+        }
+        else
+        {
+            nextCall();
+        }
+
     }
     else
     {

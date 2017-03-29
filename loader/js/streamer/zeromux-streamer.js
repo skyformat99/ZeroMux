@@ -79,6 +79,7 @@ function _createSource(args, jsonObj, videoElement, callback)
 
         // make byte stream
         var userEvents = args.events || initEventObj();
+        userEvents.delay = 17;
         obj["stream"] = newByteStream(args.jsonPath, jsonObj[1], userEvents);
 
         _dlMoov(args, obj, callback);
