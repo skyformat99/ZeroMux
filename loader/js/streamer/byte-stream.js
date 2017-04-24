@@ -7,16 +7,16 @@ function newByteStream(jsonPath, sortedParts, events)
     s["position"] = 0;
 
     s["_stopSignal"] = false;
-    s.abort = function()
+    s.abort = function ()
     {
         s["_stopSignal"] = true;
     };
 
-    s.readFrom = function(offset, callback)
+    s.readFrom = function (offset, callback)
     {
-        s.lock(function()
+        s.lock(function ()
         {
-            if(offset == "current")
+            if (offset == "current")
             {
                 offset = s.position;
             }
@@ -24,7 +24,7 @@ function newByteStream(jsonPath, sortedParts, events)
         });
 
     };
-    s.read = function(callback)
+    s.read = function (callback)
     {
         s.readFrom("current", callback);
     };
@@ -34,17 +34,17 @@ function newByteStream(jsonPath, sortedParts, events)
     s["SEEK_SET"] = SEEK_SET;
     s["SEEK_CUR"] = SEEK_CUR;
 
-    s.seek = function(offset, whence, callback)
+    s.seek = function (offset, whence, callback)
     {
-        s.lock(function()
+        s.lock(function ()
         {
             var result = false;
-            if(whence == SEEK_SET)
+            if (whence == SEEK_SET)
             {
                 s.position = offset;
                 result = true;
             }
-            else if(whence == SEEK_CUR)
+            else if (whence == SEEK_CUR)
             {
                 s.position = s.position + offset;
                 result = true;
@@ -60,26 +60,26 @@ function newByteStream(jsonPath, sortedParts, events)
         });
     };
 
-    s.peekAt = function(offset)
+    s.peekAt = function (offset)
     {
         return _streamPeek(s, offset);
     };
 
     // read lock
     s["_busyReading"] = false;
-    s.markBusy = function()
+    s.markBusy = function ()
     {
         s["_busyReading"] = true;
     };
-    s.markFree = function()
+    s.markFree = function ()
     {
         s["_busyReading"] = false;
     };
-    s.isBusy = function()
+    s.isBusy = function ()
     {
         return s["_busyReading"];
     };
-    s.lock = function(callback)
+    s.lock = function (callback)
     {
         return _waitAndLock(s, callback);
     };
@@ -93,7 +93,7 @@ function newByteStream(jsonPath, sortedParts, events)
     s["jsonPath"] = jsonPath;
     s["dlStarted"] = false;
 
-    s.preload = function()
+    s.preload = function ()
     {
         _startDl(s);
     };
@@ -103,14 +103,14 @@ function newByteStream(jsonPath, sortedParts, events)
 
 function _makeOffsetList(sortedParts)
 {
-    if(sortedParts == null || sortedParts.length == 0)
+    if (sortedParts == null || sortedParts.length == 0)
     {
         throw "Invalid file parts";
     }
 
     var offsetList = [0];
     var sizeSum = sortedParts[0].size;
-    for(var i = 1; i < sortedParts.length; i++)
+    for (var i = 1; i < sortedParts.length; i++)
     {
         offsetList.push(sizeSum);
         sizeSum += sortedParts[i].size;
@@ -131,20 +131,20 @@ function _makeDaemon(self, length)
     // daemon fns
     var fns = initDaemonFns();
 
-    fns.dataInput.getStopSignal = function()
+    fns.dataInput.getStopSignal = function ()
     {
         return self["_stopSignal"];
     };
-    fns.dataInput.getLoadedRange = function()
+    fns.dataInput.getLoadedRange = function ()
     {
         return [self.rangeStart, self.rangeEnd];
     };
-    fns.dataInput.getBufferReference = function()
+    fns.dataInput.getBufferReference = function ()
     {
         return self.buffer;
     };
 
-    fns.callbacks.onStopped = function(reason)
+    fns.callbacks.onStopped = function (reason)
     {
         self.markFree(); // release lock
     };
@@ -165,7 +165,7 @@ function _makeEvents(self, daemon, userEvents)
     // added, or failed to add to the internal buffer
     events.onadding = userEvents.onadding;
 
-    events.onadded = function(eventArgs)
+    events.onadded = function (eventArgs)
     {
         var index = eventArgs["index"];
         var bytes = eventArgs["pieceBytes"];
@@ -175,7 +175,7 @@ function _makeEvents(self, daemon, userEvents)
         self.rangeEnd = lastInFirstSequence(self.buffer, self.rangeStart);
 
         console.log([self.rangeStart, self.rangeEnd]);
-        for(var i = self.rangeStart; i < self.rangeEnd + 1; i++)
+        for (var i = self.rangeStart; i < self.rangeEnd + 1; i++)
         {
             assert(self.buffer[i] != null);
         }
@@ -186,7 +186,7 @@ function _makeEvents(self, daemon, userEvents)
     events.onpieceerror = userEvents.onpieceerror;
 
     // triggers when the original big file is being build, built or failed to build.
-    events.onblobbuilding = function(e)
+    events.onblobbuilding = function (e)
     {
         // set everything as loaded
         self.rangeStart = 0;
@@ -200,7 +200,7 @@ function _makeEvents(self, daemon, userEvents)
 
     events.otherParams = userEvents.otherParams;
 
-    events.suggest = function()
+    events.suggest = function ()
     {
         return daemon.getRangeStart();
     };
@@ -255,9 +255,9 @@ function _offsetBinarySearch(list, offset, low=0, up=null, retLower=true)
 
 function _waitAndLock(self, callback, n=0)
 {
-    var loop = function()
+    var loop = function ()
     {
-        if(self.isBusy())
+        if (self.isBusy())
         {
             _waitAndLock(self, callback, 23);
         }
@@ -280,7 +280,7 @@ function _streamRead(self, offset, callback)
     console.log("Read from offset " + offset);
 
     var chunkIndex = _getIndex(self.offsetList, offset);
-    if(chunkIndex == self.offsetList.length - 1)
+    if (chunkIndex == self.offsetList.length - 1)
     {
         // EOF
         callback(offset, new ArrayBuffer());
@@ -290,9 +290,9 @@ function _streamRead(self, offset, callback)
 
     assert(difference >= 0, "diff < 0");
 
-    var sliceAndCallback = function(bytes)
+    var sliceAndCallback = function (bytes)
     {
-        if(bytes == null) // read failed
+        if (bytes == null) // read failed
         {
             // release lock
             self.markFree();
@@ -308,7 +308,7 @@ function _streamRead(self, offset, callback)
             // release lock
             self.markFree();
 
-            if(difference == 0)
+            if (difference == 0)
             {
                 callback(offset, bytes);
             }
@@ -321,7 +321,7 @@ function _streamRead(self, offset, callback)
 
     // first, peek
     var bytes = self.daemon.peek(chunkIndex);
-    if(bytes != null)
+    if (bytes != null)
     {
         console.log("Result obtained by daemon.peek(...)");
 
@@ -330,7 +330,7 @@ function _streamRead(self, offset, callback)
     else
     {
         // peek failed -> readFrom(index)
-        self.daemon.readFrom(chunkIndex, function(idx, b)
+        self.daemon.readFrom(chunkIndex, function (idx, b)
         {
             assert(idx == chunkIndex, "readFrom callback error");
 
@@ -342,18 +342,15 @@ function _streamRead(self, offset, callback)
 
 function _streamPeek(self, offset)
 {
-    if(self.position < offset)
+    if (self.position < offset)
     {
         return null;
     }
 
-    // I decided not to call preload()
-    // so peek(...) does not have side effects
-
     console.log("Peek at offset " + offset);
 
     var chunkIndex = _getIndex(self.offsetList, offset);
-    if(chunkIndex > self.offsetList.length - 1) // EOF
+    if (chunkIndex > self.offsetList.length - 1) // EOF
     {
         return new ArrayBuffer();
     }
@@ -363,13 +360,13 @@ function _streamPeek(self, offset)
 
     assert(difference >= 0, "bug found");
 
-    if(chunkBytes == null)
+    if (chunkBytes == null)
     {
         return null;
     }
     else
     {
-        if(difference == 0)
+        if (difference == 0)
         {
             return chunkBytes;
         }
@@ -382,7 +379,7 @@ function _streamPeek(self, offset)
 
 function _startDl(self)
 {
-    if(!self.dlStarted)
+    if (!self.dlStarted)
     {
         self["dlStarted"] = true;
         downloadBigFile(self.jsonPath, self.events);
@@ -391,12 +388,12 @@ function _startDl(self)
 
 function _getIndex(offsetList, offset)
 {
-    if(offset < offsetList[0])
+    if (offset < offsetList[0])
     {
         throw "offset < lower bound";
     }
 
-    if(offset >= offsetList[offsetList.length - 1]) // offset is outside the file
+    if (offset >= offsetList[offsetList.length - 1]) // offset is outside the file
     {
         return offsetList.length - 1; // the last chunk is "fake"
     }

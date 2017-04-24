@@ -28,7 +28,7 @@ function FindIndexInCountsM(array, countIndex, number, cachedIndex=0, cachedSum=
     var currentNumber = cachedSum;
     // currentNumber: absolute
     //for i in range(cachedIndex, len(array)):
-    for(var i = cachedIndex; i < array.length; i++)
+    for (var i = cachedIndex; i < array.length; i++)
     {
         var item = array[i][countIndex];
 
@@ -76,7 +76,7 @@ function GetChunkInfo(chunkNumber, sampleInfo, startIndex=0)
 
 
     //for i in range( startIndex, len(sampleCountEntries) ):
-    for(var i = startIndex; i < sampleCountEntries.length; i++)
+    for (var i = startIndex; i < sampleCountEntries.length; i++)
     {
         // firstChunk (abs. number), samplesPerChunk, descriptionIndex
         var currentEntry = sampleCountEntries[i];
@@ -112,7 +112,7 @@ function GetChunkFirstSampleNumberM(chunkNumber, sampleInfo, startChunkNumber=1,
 
     var startIndex = 0;
     //for number in range(startChunkNumber, chunkNumber):
-    for(var number = startChunkNumber; number < chunkNumber; number++)
+    for (var number = startChunkNumber; number < chunkNumber; number++)
     {
         //startIndex, count, t = GetChunkInfo(number, sampleInfo, startIndex=startIndex)
         var abc = GetChunkInfo(number, sampleInfo, startIndex);
@@ -142,7 +142,7 @@ function GetChunkLength(chunkNumber, sampleInfo, smpCount=null, firstSampleNum=n
     //chunkLength = sum( [GetSampleSize(n, sampleInfo) \
     //    for n in range(chunkFirstSampleNumber, nextChunkFirstSampleNumber)] )
     var chunkLength = 0;
-    for(var n = chunkFirstSampleNumber; n < nextChunkFirstSampleNumber; n++)
+    for (var n = chunkFirstSampleNumber; n < nextChunkFirstSampleNumber; n++)
     {
         chunkLength += GetSampleSize(n, sampleInfo);
     }
@@ -211,7 +211,7 @@ function GetSampleTimestamp(number, sampleInfo)
     // sum(duration of all prev samples)
 
     var dtSum = 0;
-    for(var i = 0; i < index; i++)
+    for (var i = 0; i < index; i++)
     {
         dtSum += dtDeltaList[i][0] * dtDeltaList[i][1];
     }
@@ -219,7 +219,7 @@ function GetSampleTimestamp(number, sampleInfo)
     // startSampleNumber = 1 + sum( [dtDeltaEntries[i][0] for i in range(index)] )
 
     var startSampleNumber = 1;
-    for(var i = 0; i < index; i++)
+    for (var i = 0; i < index; i++)
     {
         startSampleNumber += dtDeltaList[i][0];
     }
